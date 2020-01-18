@@ -1,27 +1,61 @@
 const createError = require('http-errors');
+const favicon = require('serve-favicon');
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const bodyParser = require('body-parser');
+const session = require('express-session');
+const passport = require('passport');
+const User = require('./models/user');
+const mongoose = require('mongoose');
 
+// require routes
 const indexRouter = require('./routes/index');
 const postsRouter = require('./routes/posts');
 const reviewsRouter = require('./routes/reviews');
+
 const app = express();
+
+mongoose.connect('mongodb://localhost:27017/surf-shop', { useNewUrlParser: true,  useUnifiedTopology: true  });
+mongoose.set('useCreateIndex', true);
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', () => {
+  console.log('We are connected');
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Configure Passport and Sessions
+app.use(session({
+  secret: 'hang ten dude!',
+  resave: false,
+  saveUninitialized: true
+}));
+
+
+// CHANGE: USE "createStrategy" INSTEAD OF "authenticate"
+passport.use(User.createStrategy());
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+// mount routes
 app.use('/', indexRouter);
 app.use('/posts', postsRouter);
 app.use('/posts/:id/reviews', reviewsRouter);
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
