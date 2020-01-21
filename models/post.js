@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const postSchema = new Schema({
+
+const PostSchema = new Schema({
     title: String,
     price: String,
     description: String,
     images: [{ url: String, public_id: String }],
     location: String,
-    lat: Number,
-    long: Number,
+    coordinates: Array,
     author: {
         type: Schema.Types.ObjectId,
         ref: 'User'
@@ -20,4 +20,4 @@ const postSchema = new Schema({
     ]
 });
 
-module.exports = mongoose.model('Post', postSchema);
+module.exports = mongoose.model('Post', PostSchema);

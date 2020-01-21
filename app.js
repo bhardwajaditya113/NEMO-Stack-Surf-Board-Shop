@@ -3,6 +3,7 @@ require('dotenv').config();
 const createError = require('http-errors');
 const favicon = require('serve-favicon');
 const express = require('express');
+const engine = require('ejs-mate');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
@@ -28,9 +29,15 @@ db.once('open', () => {
   console.log('We are connected');
 });
 
+
+//use ejs-locals for all ejs templates:
+app.engine('ejs', engine);
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+
+//set public assets directory
+app.use(express.static('public'));
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
@@ -55,6 +62,20 @@ app.use(passport.session());
 passport.use(User.createStrategy());
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
+
+// set local variables middleware
+app.use(function(req, res, next) {
+  // set default page title
+  res.locals.title = 'Surf Shop';
+  // set success flash message
+  res.locals.success = req.session.success || '';
+  delete req.session.success;
+  // set error flash message
+  res.locals.error = req.session.error || '';
+  delete req.session.error;
+  // continue on to next function in middleware chain
+  next();
+});
 
 // mount routes
 app.use('/', indexRouter);

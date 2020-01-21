@@ -4,10 +4,11 @@ const { postRegister, postLogin, getLogout } = require('../controllers');
 const { asyncErrorHandler } = require('../middleware');
 
 
-/* GET homepage. */
-router.get("/", (req, res, next) => {
-  res.send("GET /homepage");
+/* GET home page. */
+router.get('/', (req, res, next) => {
+  res.render('index', { title: 'Surf Shop - Home' });
 });
+
 
 /* GET /register. */
 router.get("/register", (req, res, next) => {

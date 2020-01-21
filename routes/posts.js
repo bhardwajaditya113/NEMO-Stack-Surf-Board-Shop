@@ -19,7 +19,7 @@ router.get("/", asyncErrorHandler(postIndex));
 router.get("/new", postNew);
 
 /* POST posts create /posts */  
-router.post("/", upload.array('images', 4), asyncErrorHandler(postCreate));
+router.post("/", upload.array('images', 20), asyncErrorHandler(postCreate));
 
 /* GET posts show /posts/:id */
 router.get("/:id", asyncErrorHandler(postShow));
@@ -28,7 +28,7 @@ router.get("/:id", asyncErrorHandler(postShow));
 router.get("/:id/edit", asyncErrorHandler(postEdit));
 
 /* PUT posts update /posts/:id */
-router.put("/:id", asyncErrorHandler(postUpdate));
+router.put('/:id', upload.array('images', 4), asyncErrorHandler(postUpdate));
 
 /* DELETE posts delete /posts/:id */
 router.delete("/:id", asyncErrorHandler(postDestroy));
