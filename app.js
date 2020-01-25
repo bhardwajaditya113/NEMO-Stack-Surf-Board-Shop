@@ -7,12 +7,14 @@ const engine = require('ejs-mate');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const bodyParser = require('body-parser');
 const session = require('express-session');
 const passport = require('passport');
 const User = require('./models/user');
 const mongoose = require('mongoose');
 const methodOverride = require('method-override');
+//const seedPosts = require('./seeds');
+//seedPosts();
+
 
 // require routes
 const indexRouter = require('./routes/index');
@@ -39,14 +41,16 @@ app.set('view engine', 'ejs');
 //set public assets directory
 app.use(express.static('public'));
 
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(methodOverride('_method'));
+
+// Add moment to every view
+app.locals.moment = require('moment');
 
 // Configure Passport and Sessions
 app.use(session({
@@ -65,6 +69,7 @@ passport.deserializeUser(User.deserializeUser());
 
 // set local variables middleware
 app.use(function(req, res, next) {
+  res.locals.currentUser = req.user;
   // set default page title
   res.locals.title = 'Surf Shop';
   // set success flash message

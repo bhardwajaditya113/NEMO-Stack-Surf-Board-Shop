@@ -1,62 +1,69 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const { postRegister, postLogin, getLogout } = require('../controllers');
-const { asyncErrorHandler } = require('../middleware');
+const multer = require('multer');
+const { storage } = require('../cloudinary');
+const upload = multer({ storage });
+const { 
+	landingPage,
+	getRegister,
+	postRegister,
+	getLogin,
+	postLogin,
+	getLogout,
+	getProfile,
+	updateProfile,
+	getForgotPw,
+	putForgotPw,
+	getReset,
+	putReset
+} = require('../controllers');
+const {
+	asyncErrorHandler,
+	isLoggedIn,
+	isValidPassword,
+	changePassword
+} = require('../middleware')
 
+/* GET home/landing page. */
+router.get('/', asyncErrorHandler(landingPage));
 
-/* GET home page. */
-router.get('/', (req, res, next) => {
-  res.render('index', { title: 'Surf Shop - Home' });
-});
+/* GET /register */
+router.get('/register', getRegister);
 
+/* POST /register */
+router.post('/register', upload.single('image'), asyncErrorHandler(postRegister));
 
-/* GET /register. */
-router.get("/register", (req, res, next) => {
-  res.send("GET /register");
-});
+/* GET /login */
+router.get('/login', getLogin);
 
-/* POST /register. */
-router.post("/register", asyncErrorHandler(postRegister));
+/* POST /login */
+router.post('/login', asyncErrorHandler(postLogin));
 
-/* GET /login. */
-router.get("/login", (req, res, next) => {
-  res.send("GET /login");
-});
+/* GET /logout */
+router.get('/logout', getLogout);
 
-/* POST /login. */
-router.post("/login", postLogin);
+/* GET /profile */
+router.get('/profile', isLoggedIn, asyncErrorHandler(getProfile));
 
-/* GET /logout. */
-router.get("/logout", getLogout);
+/* PUT /profile */
+router.put('/profile',
+	isLoggedIn,
+	upload.single('image'),
+	asyncErrorHandler(isValidPassword),
+	asyncErrorHandler(changePassword),
+	asyncErrorHandler(updateProfile)
+);
 
-/* GET /profile. */
-router.get("/profile", (req, res, next) => {
-  res.send("GET /profile");
-});
+/* GET /forgot */
+router.get('/forgot-password', getForgotPw);
 
-/* PUT /profile. */
-router.put("/profile/:user_id", (req, res, next) => {
-  res.send("PUT /profile/:user_id");
-});
+/* PUT /forgot */
+router.put('/forgot-password', asyncErrorHandler(putForgotPw));
 
-/* GET /forgot-password. */
-router.get("/forgot-password", (req, res, next) => {
-  res.send("GET /forgot-password");
-});
+/* GET /reset/:token */
+router.get('/reset/:token', asyncErrorHandler(getReset));
 
-/* PUT /forgot-password. */
-router.put("/forgot-password", (req, res, next) => {
-  res.send("PUT /forgot-password");
-});
-
-/* GET /reset-password/:token. */
-router.get("/reset-password/:token", (req, res, next) => {
-  res.send("GET /reset-password");
-});
-
-/* PUT /reset-password/:token. */
-router.put("/reset-password/:token", (req, res, next) => {
-  res.send("PUT /reset-password");
-});
+/* PUT /reset/:token */
+router.put('/reset/:token', asyncErrorHandler(putReset));
 
 module.exports = router;
